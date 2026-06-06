@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/Toast";
 import Logo from "@/components/Logo";
+import { apiFetch } from "@/lib/api";
 
 export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +37,7 @@ export default function Register() {
   const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await apiFetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)

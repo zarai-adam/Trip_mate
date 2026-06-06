@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "@/lib/api";
 import { 
   APIProvider, 
   useMapsLibrary,
@@ -63,13 +64,10 @@ export default function CreateTrip() {
     const formDataUpload = new FormData();
     formDataUpload.append("image", file);
 
-    const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
-
     try {
-      const res = await fetch("/api/upload", {
+      const res = await apiFetch("/api/upload", {
         method: "POST",
-        body: formDataUpload,
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        body: formDataUpload
       });
       const data = await res.json();
       if (data.url) {
@@ -87,13 +85,10 @@ export default function CreateTrip() {
     const formDataUpload = new FormData();
     formDataUpload.append("image", file);
 
-    const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
-
     try {
-      const res = await fetch("/api/upload", {
+      const res = await apiFetch("/api/upload", {
         method: "POST",
-        body: formDataUpload,
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        body: formDataUpload
       });
       const data = await res.json();
       if (data.url) {

@@ -4,6 +4,7 @@ import { Send, Mail, MapPin, Phone, Loader2, Sparkles, HelpCircle } from "lucide
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/Toast";
 import { useForm } from "react-hook-form";
+import { apiFetch } from "@/lib/api";
 
 interface ContactFormData {
   name: string;
@@ -25,7 +26,7 @@ export default function ContactUs() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/support/contact", {
+      const response = await apiFetch("/api/support/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)

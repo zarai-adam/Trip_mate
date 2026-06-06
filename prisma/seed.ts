@@ -33,7 +33,7 @@ async function main() {
   });
 
   const rounds = 10;
-  const adminPass = await bcrypt.hash("Admin123!", rounds);
+  const adminPass = await bcrypt.hash("admin123!", rounds);
   const guidePass = await bcrypt.hash("Guide123!", rounds);
   const explorerPass = await bcrypt.hash("Explorer123!", rounds);
 

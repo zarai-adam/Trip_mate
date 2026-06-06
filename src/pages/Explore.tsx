@@ -5,7 +5,7 @@ import {
   Map as MapIcon, SlidersHorizontal, ChevronDown, 
   Activity, Sparkles, LayoutGrid, List, 
   X, Check, Globe, Users, Clock, Languages,
-  ShieldCheck, ArrowRight, TrendingUp
+  ShieldCheck, ArrowRight, TrendingUp, ShieldAlert
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useSearchParams } from "react-router-dom";
@@ -44,6 +44,7 @@ export default function Explore() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list" | "map">(
     (searchParams.get("view") as any) || "grid"
   );
@@ -116,6 +117,7 @@ export default function Explore() {
     }
 
     setIsLoading(true);
+    setError(null);
     try {
       const res = await apiFetch(`/api/trips?${params.toString()}`);
       const data = await res.json();
@@ -129,8 +131,9 @@ export default function Explore() {
       urlParams.set("view", viewMode);
       if (showMapSplit) urlParams.set("map", "true");
       setSearchParams(urlParams, { replace: true });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch trips", err);
+      setError(err.message || "Failed to fetch trips");
     } finally {
       setIsLoading(false);
     }
@@ -479,6 +482,17 @@ export default function Explore() {
                 <div className={`grid gap-8 ${showMapSplit ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"}`}>
                   {[1, 2, 3, 4, 5, 6].map(i => <TripCardSkeleton key={i} />)}
                 </div>
+              ) : error ? (
+                <EmptyState 
+                  icon={ShieldAlert}
+                  title="Unable to connect to the server"
+                  description={error}
+                  actionLabel="Retry Connection"
+                  onAction={() => {
+                    setError(null);
+                    fetchTrips();
+                  }}
+                />
               ) : trips.length > 0 ? (
                 <div className={`grid gap-8 ${
                   showMapSplit 

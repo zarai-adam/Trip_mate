@@ -687,12 +687,12 @@ export default function TripDetail() {
                         <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                            <motion.div 
                             initial={{ width: 0 }}
-                            whileInView={{ width: `${(trip.ratingBreakdown as any)[num]}%` }}
+                            whileInView={{ width: `${((trip.ratingBreakdown || {}) as any)[num] || 0}%` }}
                             viewport={{ once: true }}
                             className="h-full bg-forest rounded-full" 
                            />
                         </div>
-                        <span className="text-[10px] font-bold text-gray-300 w-8">{(trip.ratingBreakdown as any)[num]}%</span>
+                        <span className="text-[10px] font-bold text-gray-300 w-8">{((trip.ratingBreakdown || {}) as any)[num] || 0}%</span>
                      </div>
                    ))}
                  </div>

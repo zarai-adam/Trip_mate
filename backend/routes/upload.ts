@@ -13,7 +13,7 @@ const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
 // Ensure uploads directory exists
 await fs.mkdir(UPLOADS_DIR, { recursive: true });
 
-router.post("/", authenticate, upload.single("image"), async (req, res) => {
+router.post("/", authenticate, upload.single("image"), async (req: any, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No image provided" });

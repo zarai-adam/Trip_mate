@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/Toast";
 import Logo from "@/components/Logo";
+import { apiFetch } from "@/lib/api";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +34,7 @@ export default function Login() {
   const onSubmit = async (data: LoginInput) => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await apiFetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -98,11 +99,6 @@ export default function Login() {
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
           <p className="text-gray-500">Pick up where you left off.</p>
           
-          <div className="mt-4 p-4 bg-sage/5 rounded-2xl text-[10px] text-gray-400 font-medium uppercase tracking-widest text-left">
-            <span className="font-bold text-forest">Demo Accounts:</span><br/>
-            Admin: admin@tripmate.app / Admin123!<br/>
-            Explorer: alex@tripmate.app / Explorer123!
-          </div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

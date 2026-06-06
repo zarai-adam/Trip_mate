@@ -27,6 +27,7 @@ import {
   Map as MapIcon
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { apiFetch } from "@/lib/api";
 
 const API_KEY =
   process.env.GOOGLE_MAPS_PLATFORM_KEY ||
@@ -66,7 +67,7 @@ const MapExplorer = () => {
   const [maxPrice, setMaxPrice] = useState<number>(2000);
 
   useEffect(() => {
-    fetch("/api/trips")
+    apiFetch("/api/trips")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
