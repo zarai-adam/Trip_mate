@@ -150,7 +150,7 @@ export default function Messages() {
                          {details.avatar ? (
                            <img src={details.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
                          ) : (
-                           <span className="text-forest font-black uppercase text-xl">{details.name[0]}</span>
+                           <span className="text-forest font-black uppercase text-xl">{(details?.name || "U")[0]}</span>
                          )}
                       </div>
                       {isOnline && (
@@ -209,7 +209,7 @@ export default function Messages() {
                       {getConversationDetails(activeConversation).avatar ? (
                         <img src={getConversationDetails(activeConversation).avatar!} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
                       ) : (
-                        getConversationDetails(activeConversation).name[0]
+                        (getConversationDetails(activeConversation).name || "U")[0]
                       )}
                     </div>
                     {activeConversation.type === "DIRECT" && onlineUsers.includes(activeConversation.participants.find(p => p.id !== user.id)?.id || "") && (

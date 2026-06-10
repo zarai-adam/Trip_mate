@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { 
   Users, 
@@ -18,20 +18,38 @@ import {
   Menu,
   X
 } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
+import { apiFetch } from "@/lib/api";
 import { motion, AnimatePresence } from "motion/react";
 
 const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await apiFetch("/api/admin/stats");
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.pendingApps === "number") {
+            setPendingCount(data.pendingApps);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch pending applications count:", err);
+      }
+    };
+    fetchStats();
+  }, [location.pathname]);
+
   const menuItems = [
     { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
-    { label: "Guide Apps", path: "/admin/guide-applications", icon: FileText, badge: 3 },
+    { label: "Guide Apps", path: "/admin/guide-applications", icon: FileText, badge: pendingCount && pendingCount > 0 ? pendingCount : undefined },
     { label: "Users", path: "/admin/users", icon: Users },
     { label: "Trips", path: "/admin/trips", icon: Map },
     { label: "Bookings", path: "/admin/bookings", icon: Calendar },
@@ -141,18 +159,7 @@ const AdminLayout = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <div className="relative">
-              <button 
-                onClick={() => setIsNotifyOpen(!isNotifyOpen)}
-                className="w-10 h-10 rounded-xl bg-[var(--color-bg-secondary)] flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-forest/10 hover:text-forest transition-all border border-[var(--color-border)]"
-              >
-                <div className="relative">
-                  <Bell size={20} />
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-[var(--color-bg-primary)] rounded-full animate-shake"></span>
-                </div>
-              </button>
-            </div>
+            <NotificationBell />
 
             <Link 
               to="/" 

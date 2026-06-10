@@ -107,7 +107,7 @@ export default function DiscoverGuides() {
                    {guide.avatar ? (
                      <img src={guide.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
                    ) : (
-                     guide.name[0]
+                     (guide?.name || "G")[0]
                    )}
                    {guide.verificationStatus === "VERIFIED" && (
                      <div className="absolute -bottom-1 -right-1 w-12 h-12 bg-forest rounded-2xl border-4 border-white flex items-center justify-center text-white shadow-2xl">

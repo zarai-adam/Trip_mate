@@ -347,7 +347,7 @@ export default function GuidePublicProfile() {
                                    {review.reviewer.avatarUrl ? (
                                       <img src={review.reviewer.avatarUrl} alt="" className="w-full h-full object-cover" />
                                    ) : (
-                                      review.reviewer.firstName[0]
+                                      (review.reviewer?.firstName || "T")[0]
                                    )}
                                 </div>
                              </div>

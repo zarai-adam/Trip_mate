@@ -46,6 +46,41 @@ router.post("/applications", authenticate, async (req: AuthRequest, res: Respons
   }
 });
 
+// This route gets the current user's guide application status
+router.get("/applications/my", authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const application = await prisma.guideApplication.findFirst({
+      where: { userId: req.user!.id },
+      orderBy: { createdAt: "desc" }
+    });
+    res.json(application || null);
+  } catch (error) {
+    console.error("Get personal application error:", error);
+    res.status(500).json({ error: "Failed to fetch application status" });
+  }
+});
+
+// This route allows resetting or deleting a rejected application to apply again
+router.delete("/applications/my", authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const existing = await prisma.guideApplication.findFirst({
+      where: { userId: req.user!.id, status: GuideApplicationStatus.REJECTED }
+    });
+
+    if (existing) {
+      await prisma.guideApplication.delete({
+        where: { id: existing.id }
+      });
+      return res.json({ success: true, message: "Application reset successfully" });
+    }
+
+    res.status(400).json({ error: "No rejected application found to reset" });
+  } catch (error) {
+    console.error("Reset application error:", error);
+    res.status(500).json({ error: "Failed to reset application" });
+  }
+});
+
 // Apply admin protection to all routes below
 router.use(authenticate);
 router.use(requireRole([UserRole.ADMIN]));

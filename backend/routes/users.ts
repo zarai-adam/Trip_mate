@@ -63,7 +63,10 @@ router.get("/me/private", authenticate, async (req: AuthRequest, res: Response) 
     if (!user) return res.status(404).json({ error: "User not found" });
     
     const { passwordHash, ...safeUser } = user;
-    res.json(safeUser);
+    res.json({
+      ...safeUser,
+      name: `${user.firstName} ${user.lastName}`.trim()
+    });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch own profile" });
   }
@@ -97,7 +100,10 @@ router.patch("/me", authenticate, async (req: AuthRequest, res: Response) => {
     });
 
     const { passwordHash, ...safeUser } = updatedUser;
-    res.json(safeUser);
+    res.json({
+      ...safeUser,
+      name: `${updatedUser.firstName} ${updatedUser.lastName}`.trim()
+    });
   } catch (error) {
     console.error("Update profile error:", error);
     res.status(500).json({ error: "Failed to update profile" });

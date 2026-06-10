@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -16,7 +17,8 @@ import {
   ShieldAlert,
   Bell,
   User,
-  Compass
+  Compass,
+  Award
 } from "lucide-react";
 import { useNotifications } from "@/context/NotificationContext";
 import NotificationBell from "./NotificationBell";
@@ -25,8 +27,33 @@ import Logo from "./Logo";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const userStr = localStorage.getItem("user");
-  const user = userStr ? JSON.parse(userStr) : { name: "Traveler", role: "EXPLORER" };
+  const [user, setUser] = useState<{ name: string; role: string; avatarUrl?: string }>(() => {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : { name: "Traveler", role: "EXPLORER" };
+  });
+
+  useEffect(() => {
+    const updateUser = () => {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          setUser(JSON.parse(userStr));
+        } catch (e) {
+          console.error("Failed to parse user from local storage", e);
+        }
+      } else {
+        setUser({ name: "Traveler", role: "EXPLORER" });
+      }
+    };
+
+    window.addEventListener("storage", updateUser);
+    window.addEventListener("user-profile-updated", updateUser);
+
+    return () => {
+      window.removeEventListener("storage", updateUser);
+      window.removeEventListener("user-profile-updated", updateUser);
+    };
+  }, []);
 
   const isGuide = user.role === "GUIDE";
 
@@ -39,7 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Messages", icon: <MessageCircle size={20} />, href: "/dashboard/messages" },
     { name: "Wishlist", icon: <Heart size={20} />, href: "/dashboard/wishlist" },
     { name: "My Reviews", icon: <Star size={20} />, href: "/dashboard/reviews" },
-    { name: "Custom Requests", icon: <FileText size={20} />, href: "/dashboard/requests" },
+    { name: "Guide Application", icon: <Award size={20} />, href: "/guide/application" },
   ];
 
   const guideLinks = [
@@ -153,11 +180,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
            <div className="flex items-center gap-6">
               <NotificationBell />
               <div className="hidden md:flex flex-col text-right">
-                 <span className="text-sm font-black text-forest">{user.name}</span>
-                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{user.role}</span>
+                 <span className="text-sm font-black text-forest">{user?.name || "Traveler"}</span>
+                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{user?.role}</span>
               </div>
-              <div className="w-12 h-12 bg-forest/5 border border-sage/20 rounded-2xl flex items-center justify-center font-black text-forest">
-                 {user.name[0]}
+              <div className="w-12 h-12 bg-forest/5 border border-sage/20 rounded-2xl flex items-center justify-center font-black text-forest overflow-hidden">
+                 {user?.avatarUrl ? (
+                   <img src={user.avatarUrl} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
+                 ) : (
+                   (user?.name || "T")[0]
+                 )}
               </div>
            </div>
         </header>

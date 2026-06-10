@@ -123,7 +123,7 @@ export default function TripCard({ trip, index }: TripCardProps) {
                  {trip.guide.avatar ? (
                    <img src={trip.guide.avatar} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
                  ) : (
-                   trip.guide.name[0]
+                   (trip.guide?.name || "G")[0]
                  )}
                </div>
                <div>

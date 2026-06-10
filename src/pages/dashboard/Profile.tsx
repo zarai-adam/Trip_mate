@@ -59,6 +59,8 @@ export default function UserProfileEdit() {
         const res = await apiFetch("/api/users/me/private");
         const data = await res.json();
         setUser(data);
+        localStorage.setItem("user", JSON.stringify(data));
+        window.dispatchEvent(new Event("user-profile-updated"));
         setFormData({
           firstName: data.firstName || "",
           lastName: data.lastName || "",
@@ -100,6 +102,7 @@ export default function UserProfileEdit() {
       if (res.ok) {
         const updated = await res.json();
         localStorage.setItem("user", JSON.stringify(updated));
+        window.dispatchEvent(new Event("user-profile-updated"));
         showToast("Profile updated successfully!", "success");
       } else {
         showToast("Failed to update profile", "error");

@@ -107,6 +107,7 @@ export default function App() {
           <Route path="/dashboard/messages" element={<DashboardLayout><Messages /></DashboardLayout>} />
           <Route path="/dashboard/profile" element={<DashboardLayout><UserProfileEdit /></DashboardLayout>} />
           <Route path="/dashboard/settings" element={<DashboardLayout><SettingsPage /></DashboardLayout>} />
+          <Route path="/guide/application" element={<DashboardLayout><ApplyGuide /></DashboardLayout>} />
         </Route>
 
         {/* Explorer Dashboard */}
@@ -121,7 +122,6 @@ export default function App() {
           <Route path="/guide/dashboard/trips" element={<DashboardLayout><div className="p-10 text-center">My Trips Coming Soon</div></DashboardLayout>} />
           <Route path="/guide/dashboard/create" element={<DashboardLayout><CreateTrip /></DashboardLayout>} />
           <Route path="/guide/dashboard/analytics" element={<DashboardLayout><Analytics /></DashboardLayout>} />
-          <Route path="/guide/application" element={<ApplyGuide />} />
         </Route>
 
         {/* Admin Dashboard */}

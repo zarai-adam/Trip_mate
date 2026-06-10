@@ -83,11 +83,51 @@ const DashboardOverview = () => {
   }, []);
 
   const statCards = [
-    { label: "Total Users", value: stats?.userCount, trend: `+${stats?.usersThisWeek || 0} weekly`, icon: Users, color: "bg-blue-500", trendColor: "text-blue-500" },
-    { label: "Active Guides", value: stats?.guideCount, trend: "Global", icon: MapPin, color: "bg-forest", trendColor: "text-forest" },
-    { label: "Active Trips", value: stats?.tripCount, trend: "Public", icon: Calendar, color: "bg-sage", trendColor: "text-sage" },
-    { label: "Bookings", value: stats?.bookingCount, trend: "Monthly", icon: TrendingUp, color: "bg-amber-500", trendColor: "text-amber-500" },
-    { label: "Pending Apps", value: stats?.pendingApps, trend: "Priority", icon: AlertCircle, color: "bg-red-500", trendColor: "text-red-500" },
+    { 
+      label: "Total Users", 
+      value: stats?.userCount, 
+      trend: `+${stats?.usersThisWeek || 0} weekly`, 
+      icon: Users, 
+      color: "bg-blue-500", 
+      trendColor: "text-blue-500",
+      percentage: stats?.userCount ? Math.min(100, Math.round((stats.userCount / 100) * 100)) : 0
+    },
+    { 
+      label: "Active Guides", 
+      value: stats?.guideCount, 
+      trend: "Global", 
+      icon: MapPin, 
+      color: "bg-forest", 
+      trendColor: "text-forest",
+      percentage: stats?.guideCount ? Math.min(100, Math.round((stats.guideCount / 20) * 100)) : 0
+    },
+    { 
+      label: "Active Trips", 
+      value: stats?.tripCount, 
+      trend: "Public", 
+      icon: Calendar, 
+      color: "bg-sage", 
+      trendColor: "text-sage",
+      percentage: stats?.tripCount ? Math.min(100, Math.round((stats.tripCount / 50) * 100)) : 0
+    },
+    { 
+      label: "Bookings", 
+      value: stats?.bookingCount, 
+      trend: "Monthly", 
+      icon: TrendingUp, 
+      color: "bg-amber-500", 
+      trendColor: "text-amber-500",
+      percentage: stats?.bookingCount ? Math.min(100, Math.round((stats.bookingCount / 50) * 100)) : 0
+    },
+    { 
+      label: "Pending Apps", 
+      value: stats?.pendingApps, 
+      trend: "Priority", 
+      icon: AlertCircle, 
+      color: "bg-red-500", 
+      trendColor: "text-red-500",
+      percentage: stats?.pendingApps !== undefined ? Math.max(0, 100 - (stats.pendingApps * 10)) : 100
+    },
   ];
 
   return (
@@ -125,7 +165,7 @@ const DashboardOverview = () => {
                   <div className="mt-4 h-1.5 w-full bg-[var(--color-bg-secondary)] rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
-                      animate={{ width: "70%" }}
+                      animate={{ width: `${stat.percentage}%` }}
                       transition={{ duration: 1, delay: 0.5 }}
                       className={`h-full ${stat.color}`}
                     />

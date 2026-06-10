@@ -10,7 +10,7 @@ import { useChat } from "@/context/ChatContext";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; role: string; avatarUrl?: string } | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const { totalUnreadCount } = useChat();
@@ -39,18 +39,29 @@ export default function Navbar() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      try {
-        setUser(JSON.parse(userStr));
-      } catch (e) {
-        console.error("Failed to parse user from local storage", e);
+    const updateUser = () => {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          setUser(JSON.parse(userStr));
+        } catch (e) {
+          console.error("Failed to parse user from local storage", e);
+        }
+      } else {
+        setUser(null);
       }
-    }
+    };
+
+    updateUser();
+
+    window.addEventListener("storage", updateUser);
+    window.addEventListener("user-profile-updated", updateUser);
     
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("storage", updateUser);
+      window.removeEventListener("user-profile-updated", updateUser);
     };
   }, []);
 
@@ -79,9 +90,11 @@ export default function Navbar() {
   ];
 
   const getInitials = (name: string) => {
+    if (!name) return "U";
     return name
       .split(" ")
-      .map((n) => n[0])
+      .filter(Boolean)
+      .map((n) => n ? n[0] : "")
       .join("")
       .toUpperCase();
   };
@@ -153,18 +166,22 @@ export default function Navbar() {
                  <div className="flex items-center gap-3">
                     <div className="flex flex-col items-end leading-none">
                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Welcome</span>
-                       <span className="text-sm font-semibold text-dark dark:text-gray-100">{user.name.split(' ')[0]}</span>
+                       <span className="text-sm font-semibold text-dark dark:text-gray-100">{(user?.name || "Traveler").split(' ')?.[0]}</span>
                     </div>
                     <div className="relative group/user">
-                      <div className="w-9 h-9 rounded-xl bg-sage/10 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-center text-forest font-bold cursor-pointer group-hover/user:bg-forest group-hover/user:text-white transition-all text-xs">
-                        {getInitials(user.name)}
+                      <div className="w-9 h-9 rounded-xl bg-sage/10 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-center text-forest font-bold cursor-pointer group-hover/user:bg-forest group-hover/user:text-white transition-all text-xs overflow-hidden">
+                        {user?.avatarUrl ? (
+                          <img src={user.avatarUrl} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
+                        ) : (
+                          getInitials(user?.name || "")
+                        )}
                       </div>
                       
                       {/* Sub-menu */}
                       <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-sleek border border-gray-100 dark:border-gray-700 p-1.5 opacity-0 invisible group-hover/user:opacity-100 group-hover/user:visible transition-all scale-95 group-hover/user:scale-100 origin-top-right z-[60]">
                          <div className="px-4 py-2.5 border-b border-gray-50 dark:border-gray-700 flex flex-col">
-                            <span className="text-xs font-bold text-dark dark:text-gray-100">{user.name}</span>
-                            <span className="text-[9px] text-gray-400 uppercase font-bold">{user.role} Account</span>
+                            <span className="text-xs font-bold text-dark dark:text-gray-100">{user?.name || "Traveler"}</span>
+                            <span className="text-[9px] text-gray-400 uppercase font-bold">{user?.role || "EXPLORER"} Account</span>
                          </div>
                           <div className="p-1 space-y-0.5">
                             <Link 

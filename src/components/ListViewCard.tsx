@@ -74,7 +74,7 @@ export default function ListViewCard({ trip, index }: ListViewCardProps) {
                 {trip.guide.avatar ? (
                   <img src={trip.guide.avatar} className="w-full h-full object-cover" alt="" />
                 ) : (
-                  trip.guide.name[0]
+                  (trip.guide?.name || "G")[0]
                 )}
               </div>
               <div>
