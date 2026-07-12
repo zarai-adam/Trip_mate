@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginInput } from "@/lib/validations";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/Toast";
 import Logo from "@/components/Logo";
@@ -11,6 +11,7 @@ import { apiFetch } from "@/lib/api";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error"; isVisible: boolean }>({
     message: "",
     type: "success",
@@ -114,12 +115,23 @@ export default function Login() {
 
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-widest text-forest ml-1">Password</label>
-            <input 
-              {...register("password")}
-              type="password"
-              className="w-full bg-offwhite border border-gray-100 rounded-2xl p-4 focus:ring-2 focus:ring-sage/20 focus:outline-none transition-all"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input 
+                {...register("password")}
+                type={showPassword ? "text" : "password"}
+                className="w-full bg-offwhite border border-gray-100 rounded-2xl p-4 pr-12 focus:ring-2 focus:ring-sage/20 focus:outline-none transition-all"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(p => !p)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-forest transition-colors p-1"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                id="password-visibility-toggle"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             {errors.password && <p className="text-red-500 text-xs ml-1">{errors.password.message}</p>}
           </div>
 

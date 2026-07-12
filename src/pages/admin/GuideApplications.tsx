@@ -21,6 +21,7 @@ import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { apiFetch } from "@/lib/api";
+import { Toast } from "@/components/ui/Toast";
 
 const GuideApplications = () => {
   const [apps, setApps] = useState<any[]>([]);
@@ -30,7 +31,13 @@ const GuideApplications = () => {
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error"; isVisible: boolean }>({
+    message: "",
+    type: "success",
+    isVisible: false,
+  });
 
   const fetchData = async () => {
     setLoading(true);
@@ -51,32 +58,58 @@ const GuideApplications = () => {
     fetchData();
   }, [filter, searchTerm]);
 
-  const handleApprove = async (id: string) => {
-    if (!confirm("Are you sure you want to approve this guide?")) return;
+  useEffect(() => {
+    if (toast.isVisible) {
+      const timer = setTimeout(() => {
+        setToast(prev => ({ ...prev, isVisible: false }));
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.isVisible]);
+
+  const handleApprove = async () => {
+    if (!selectedApp) return;
     try {
-      const res = await apiFetch(`/api/admin/guide-applications/${id}/approve`, { method: "PATCH" });
+      const res = await apiFetch(`/api/admin/guide-applications/${selectedApp.id}/approve`, { method: "PATCH" });
       if (res.ok) {
+        setIsApproveModalOpen(false);
         setIsDrawerOpen(false);
+        setToast({ message: "Guide application approved successfully!", type: "success", isVisible: true });
         fetchData();
+      } else {
+        setToast({ message: "Failed to approve application.", type: "error", isVisible: true });
       }
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "An error occurred during approval.", type: "error", isVisible: true });
+    }
   };
 
   const handleReject = async () => {
-    if (!rejectionReason) return alert("Please provide a reason");
+    if (!selectedApp) return;
+    if (!rejectionReason.trim()) {
+      setToast({ message: "Please provide a reason for rejection.", type: "error", isVisible: true });
+      return;
+    }
     try {
       const res = await apiFetch(`/api/admin/guide-applications/${selectedApp.id}/reject`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: rejectionReason })
+        body: JSON.stringify({ reason: rejectionReason.trim() })
       });
       if (res.ok) {
         setIsRejectModalOpen(false);
         setIsDrawerOpen(false);
         setRejectionReason("");
+        setToast({ message: "Guide application has been rejected.", type: "success", isVisible: true });
         fetchData();
+      } else {
+        setToast({ message: "Failed to reject application.", type: "error", isVisible: true });
       }
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "An error occurred during rejection.", type: "error", isVisible: true });
+    }
   };
 
   return (
@@ -322,7 +355,7 @@ const GuideApplications = () => {
                   {selectedApp.status === "PENDING" && (
                     <div className="pt-10 border-t border-[var(--color-border)] grid grid-cols-1 sm:grid-cols-2 gap-4 pb-20">
                       <button 
-                        onClick={() => handleApprove(selectedApp.id)}
+                        onClick={() => setIsApproveModalOpen(true)}
                         className="h-16 bg-forest text-white font-black uppercase tracking-widest text-xs rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-forest/20 hover:scale-[1.02] transition-all"
                       >
                         <CheckCircle2 size={20} />
@@ -340,6 +373,51 @@ const GuideApplications = () => {
                 </div>
               </motion.div>
             </>
+          )}
+        </AnimatePresence>
+
+        {/* Approve Confirmation Modal */}
+        <AnimatePresence>
+          {isApproveModalOpen && selectedApp && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                onClick={() => setIsApproveModalOpen(false)}
+              />
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                className="relative bg-[var(--color-bg-primary)] w-full max-w-md rounded-[3rem] p-10 shadow-2xl transition-all border border-[var(--color-border)]"
+              >
+                <div className="absolute top-0 right-0 p-8">
+                  <button onClick={() => setIsApproveModalOpen(false)} className="text-gray-300 dark:text-gray-600 hover:text-gray-500 transition-colors">
+                    <X size={24} />
+                  </button>
+                </div>
+                <div className="w-16 h-16 bg-forest/10 text-forest rounded-2xl flex items-center justify-center mb-6">
+                  <CheckCircle2 size={32} />
+                </div>
+                <h4 className="text-2xl font-black text-[var(--color-text-primary)] uppercase tracking-tighter mb-2 transition-colors">Approve Applicant</h4>
+                <p className="text-sm font-bold text-[var(--color-text-muted)] mb-8 italic transition-colors">
+                  Are you sure you want to approve {selectedApp.user.firstName} {selectedApp.user.lastName} as a verified guide? They will be granted full access to design trips and manage clients.
+                </p>
+
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => setIsApproveModalOpen(false)}
+                    className="flex-1 py-4 font-black uppercase tracking-widest text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleApprove}
+                    className="flex-none px-8 py-4 bg-forest text-white font-black uppercase tracking-widest text-[10px] rounded-xl hover:bg-forest-light transition-colors active:scale-95 shadow-lg shadow-forest/10"
+                  >
+                    Confirm Approve
+                  </button>
+                </div>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
 
@@ -389,6 +467,14 @@ const GuideApplications = () => {
             </div>
           )}
         </AnimatePresence>
+
+        {/* Global Action Toast */}
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+        />
       </div>
     </PageTransition>
   );

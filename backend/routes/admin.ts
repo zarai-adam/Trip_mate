@@ -200,7 +200,7 @@ router.get("/charts/bookings", async (req: AuthRequest, res: Response) => {
 /**
  * GUIDE APPLICATIONS
  */
-router.get("/guide-applications", async (req: AuthRequest, res: Response) => {
+router.get(["/guide-applications", "/applications"], async (req: AuthRequest, res: Response) => {
   try {
     const { status, search } = req.query;
     const applications = await prisma.guideApplication.findMany({
@@ -227,7 +227,7 @@ router.get("/guide-applications", async (req: AuthRequest, res: Response) => {
   }
 });
 
-router.patch("/guide-applications/:id/approve", async (req: AuthRequest, res: Response) => {
+router.patch(["/guide-applications/:id/approve", "/applications/:id/approve"], async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const app = await prisma.guideApplication.update({
@@ -267,7 +267,7 @@ router.patch("/guide-applications/:id/approve", async (req: AuthRequest, res: Re
   }
 });
 
-router.patch("/guide-applications/:id/reject", async (req: AuthRequest, res: Response) => {
+router.patch(["/guide-applications/:id/reject", "/applications/:id/reject"], async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { reason } = req.body;
@@ -303,6 +303,80 @@ router.patch("/guide-applications/:id/reject", async (req: AuthRequest, res: Res
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Failed to reject application" });
+  }
+});
+
+router.patch(["/guide-applications/:id/review", "/applications/:id/review"], async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status, reviewNotes } = req.body;
+
+    if (status === "APPROVED") {
+      const app = await prisma.guideApplication.update({
+        where: { id },
+        data: { 
+          status: GuideApplicationStatus.APPROVED,
+          reviewedById: req.user!.id,
+          reviewedAt: new Date()
+        }
+      });
+
+      await prisma.user.update({
+        where: { id: app.userId },
+        data: { role: UserRole.GUIDE, status: UserStatus.ACTIVE }
+      });
+
+      await createNotification({
+        userId: app.userId,
+        type: NotificationType.APPLICATION_APPROVED,
+        title: "Application Approved!",
+        body: "✅ Your guide application was approved! You can now create and publish trips.",
+        data: { applicationId: id }
+      });
+
+      await prisma.activityLog.create({
+        data: {
+          actorId: req.user!.id,
+          action: "GUIDE_APPROVED",
+          targetType: "GuideApplication",
+          targetId: id
+        }
+      });
+
+      return res.json({ success: true });
+    } else {
+      const app = await prisma.guideApplication.update({
+        where: { id },
+        data: { 
+          status: GuideApplicationStatus.REJECTED,
+          reviewNotes: reviewNotes || "",
+          reviewedById: req.user!.id,
+          reviewedAt: new Date()
+        }
+      });
+
+      await createNotification({
+        userId: app.userId,
+        type: NotificationType.APPLICATION_REJECTED,
+        title: "Application Rejected",
+        body: `❌ Your guide application was declined. Reason: ${reviewNotes}`,
+        data: { applicationId: id }
+      });
+
+      await prisma.activityLog.create({
+        data: {
+          actorId: req.user!.id,
+          action: "GUIDE_REJECTED",
+          targetType: "GuideApplication",
+          targetId: id,
+          details: { reason: reviewNotes }
+        }
+      });
+
+      return res.json({ success: true });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to review application" });
   }
 });
 

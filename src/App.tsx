@@ -21,8 +21,13 @@ const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
 const MyBookings = lazy(() => import("./pages/dashboard/MyBookings"));
 const Messages = lazy(() => import("./pages/dashboard/Messages"));
+const Wishlist = lazy(() => import("./pages/dashboard/Wishlist"));
+const MyReviews = lazy(() => import("./pages/dashboard/MyReviews"));
 const GuideOverview = lazy(() => import("./pages/guide/Overview"));
+const MyTrips = lazy(() => import("./pages/guide/MyTrips"));
 const CreateTrip = lazy(() => import("./pages/guide/CreateTrip"));
+const BookingRequests = lazy(() => import("./pages/guide/BookingRequests"));
+const Earnings = lazy(() => import("./pages/guide/Earnings"));
 const Analytics = lazy(() => import("./pages/guide/Analytics"));
 const Safety = lazy(() => import("./pages/Safety"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
@@ -113,15 +118,19 @@ export default function App() {
         {/* Explorer Dashboard */}
         <Route element={<ProtectedRoute allowedRoles={["EXPLORER"]} />}>
           <Route path="/dashboard" element={<DashboardLayout><MyBookings /></DashboardLayout>} />
-          <Route path="/dashboard/wishlist" element={<DashboardLayout><div className="p-10 text-center">Wishlist Coming Soon</div></DashboardLayout>} />
+          <Route path="/dashboard/wishlist" element={<DashboardLayout><Wishlist /></DashboardLayout>} />
+          <Route path="/dashboard/reviews" element={<DashboardLayout><MyReviews /></DashboardLayout>} />
         </Route>
 
         {/* Guide Dashboard */}
         <Route element={<ProtectedRoute allowedRoles={["GUIDE"]} />}>
           <Route path="/guide/dashboard" element={<DashboardLayout><GuideOverview /></DashboardLayout>} />
-          <Route path="/guide/dashboard/trips" element={<DashboardLayout><div className="p-10 text-center">My Trips Coming Soon</div></DashboardLayout>} />
+          <Route path="/guide/dashboard/trips" element={<DashboardLayout><MyTrips /></DashboardLayout>} />
           <Route path="/guide/dashboard/create" element={<DashboardLayout><CreateTrip /></DashboardLayout>} />
+          <Route path="/guide/dashboard/edit/:id" element={<DashboardLayout><CreateTrip /></DashboardLayout>} />
           <Route path="/guide/dashboard/analytics" element={<DashboardLayout><Analytics /></DashboardLayout>} />
+          <Route path="/guide/dashboard/requests" element={<DashboardLayout><BookingRequests /></DashboardLayout>} />
+          <Route path="/guide/dashboard/earnings" element={<DashboardLayout><Earnings /></DashboardLayout>} />
         </Route>
 
         {/* Admin Dashboard */}

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Send, Smile, Search, ChevronLeft, MoreVertical, Settings, Check, CheckCheck } from "lucide-react";
+import { Send, Smile, Search, ChevronLeft, MoreVertical, Settings, Check, CheckCheck, Plus, Loader2, UserPlus, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useChat } from "@/context/ChatContext";
 import { format, isToday, isYesterday, formatDistanceToNow } from "date-fns";
@@ -17,7 +17,8 @@ export default function Messages() {
     setTyping,
     loading,
     error,
-    setError
+    setError,
+    startConversationByUsername
   } = useChat();
 
   const [messageText, setMessageText] = useState("");
@@ -25,6 +26,11 @@ export default function Messages() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const [showNewChatInput, setShowNewChatInput] = useState(false);
+  const [newChatQuery, setNewChatQuery] = useState("");
+  const [isStartingChat, setIsStartingChat] = useState(false);
+  const [newChatError, setNewChatError] = useState<string | null>(null);
 
   const commonEmojis = ["😊", "👍", "😂", "❤️", "🔥", "🙌", "🏕️", "🏜️", "🎒", "🤝"];
 
@@ -43,6 +49,24 @@ export default function Messages() {
       return matchParticipant || matchTrip;
     });
   }, [conversations, searchTerm, user.id]);
+
+  const handleStartChatByUsername = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newChatQuery.trim()) return;
+
+    setIsStartingChat(true);
+    setNewChatError(null);
+    try {
+      const conv = await startConversationByUsername(newChatQuery);
+      setActiveConversation(conv);
+      setShowNewChatInput(false);
+      setNewChatQuery("");
+    } catch (err: any) {
+      setNewChatError(err.message || "Failed to start conversation. Check username/email.");
+    } finally {
+      setIsStartingChat(false);
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -114,17 +138,71 @@ export default function Messages() {
       {/* Sidebar */}
       <div className={`w-full lg:w-96 border-r border-sage/10 flex flex-col h-full bg-offwhite/30 ${activeConversation ? "hidden lg:flex" : "flex"}`}>
         <div className="p-8 border-b border-sage/10 bg-white">
-           <h2 className="text-2xl font-black text-forest tracking-tighter italic mb-6">MESSAGES</h2>
-           <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-forest transition-colors" size={16} />
-              <input 
-                type="text" 
-                placeholder="Search history..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 bg-offwhite rounded-2xl border-none focus:ring-4 focus:ring-sage/20 text-sm font-bold placeholder:text-gray-300 transition-all"
-              />
+           <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-black text-forest tracking-tighter italic">MESSAGES</h2>
+              <button
+                onClick={() => {
+                  setShowNewChatInput(!showNewChatInput);
+                  setNewChatError(null);
+                  setNewChatQuery("");
+                }}
+                className={`p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center ${
+                  showNewChatInput 
+                  ? "bg-red-50 text-red-500 hover:bg-red-100" 
+                  : "bg-forest/5 text-forest hover:bg-forest/10"
+                }`}
+                title="Start search by email or username"
+              >
+                {showNewChatInput ? <X size={18} /> : <UserPlus size={18} />}
+              </button>
            </div>
+           
+           {showNewChatInput ? (
+             <form onSubmit={handleStartChatByUsername} className="space-y-3 mb-1">
+               <div className="relative group">
+                 <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-forest transition-colors" size={16} />
+                 <input 
+                   type="text" 
+                   required
+                   autoFocus
+                   placeholder="Enter username or email..."
+                   value={newChatQuery}
+                   onChange={e => {
+                     setNewChatQuery(e.target.value);
+                     setNewChatError(null);
+                   }}
+                   className="w-full pl-11 pr-4 py-3 bg-offwhite rounded-2xl border-none focus:ring-4 focus:ring-forest/10 text-sm font-bold placeholder:text-gray-400 transition-all text-forest"
+                 />
+               </div>
+               
+               {newChatError && (
+                 <p className="text-[11px] font-bold text-red-500 px-1">{newChatError}</p>
+               )}
+
+               <Button 
+                 type="submit" 
+                 disabled={isStartingChat || !newChatQuery.trim()}
+                 className="w-full h-11 bg-forest text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-forest/90 transition-all flex items-center justify-center gap-2"
+               >
+                 {isStartingChat ? (
+                   <Loader2 size={14} className="animate-spin" />
+                 ) : (
+                   "Connect & Chat"
+                 )}
+               </Button>
+             </form>
+           ) : (
+             <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-forest transition-colors" size={16} />
+                <input 
+                  type="text" 
+                  placeholder="Search history..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3.5 bg-offwhite rounded-2xl border-none focus:ring-4 focus:ring-sage/20 text-sm font-bold placeholder:text-gray-300 transition-all text-forest"
+                />
+             </div>
+           )}
         </div>
         
         <div className="flex-1 overflow-y-auto divide-y divide-sage/5">
@@ -136,7 +214,8 @@ export default function Messages() {
                 const isOnline = conv.type === "DIRECT" && onlineUsers.includes(conv.participants.find(p => p.id !== user.id)?.id || "");
 
                 return (
-                  <button
+                  <motion.button
+                    layout
                     key={conv.id}
                     onClick={() => setActiveConversation(conv)}
                     className={`w-full p-6 flex gap-4 text-left transition-all relative group ${
@@ -180,7 +259,7 @@ export default function Messages() {
                           )}
                        </div>
                     </div>
-                  </button>
+                  </motion.button>
                 );
              })
            ) : (

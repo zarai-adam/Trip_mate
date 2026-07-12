@@ -195,6 +195,95 @@ router.post("/:conversationId/messages", authenticate, async (req, res) => {
   }
 });
 
+// Create or get direct conversation by email/username
+router.post("/by-username", authenticate, async (req, res) => {
+  try {
+    const { username } = req.body;
+    const userId = (req as any).user.id;
+
+    if (!username) {
+      return res.status(400).json({ error: "Username or Email is required" });
+    }
+
+    const trimmed = username.trim();
+
+    // Find user by email, or firstName, or lastName
+    const otherUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: trimmed, mode: "insensitive" } },
+          { firstName: { equals: trimmed, mode: "insensitive" } },
+          { lastName: { equals: trimmed, mode: "insensitive" } }
+        ]
+      }
+    });
+
+    if (!otherUser) {
+      return res.status(404).json({ error: `No user or expert found with username/email "${trimmed}"` });
+    }
+
+    if (otherUser.id === userId) {
+      return res.status(400).json({ error: "You cannot start a chat with yourself" });
+    }
+
+    // Check if direct conversation already exists
+    let conversation = await prisma.conversation.findFirst({
+      where: {
+        type: "DIRECT",
+        participants: {
+          every: { id: { in: [userId, otherUser.id] } }
+        },
+        AND: {
+          participants: { some: { id: userId } }
+        }
+      },
+      include: {
+        participants: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+            role: true
+          }
+        }
+      }
+    });
+
+    // Exact check for exactly 2 participants
+    if (conversation && conversation.participants.length !== 2) {
+      conversation = null;
+    }
+
+    if (!conversation) {
+      conversation = await prisma.conversation.create({
+        data: {
+          type: "DIRECT",
+          participants: {
+            connect: [{ id: userId }, { id: otherUser.id }]
+          }
+        },
+        include: {
+          participants: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+              role: true
+            }
+          }
+        }
+      });
+    }
+
+    res.json(conversation);
+  } catch (error) {
+    console.error("Error starting conversation by username:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Create or get direct conversation
 router.post("/direct", authenticate, async (req, res) => {
   try {

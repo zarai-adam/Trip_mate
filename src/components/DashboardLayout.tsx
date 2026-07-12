@@ -64,9 +64,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "My Bookings", icon: <Compass size={20} />, href: "/dashboard" },
     { name: "Notifications", icon: <Bell size={20} />, href: "/notifications", badge: unreadCount },
     { name: "Messages", icon: <MessageCircle size={20} />, href: "/dashboard/messages" },
+    { name: "Guide Application", icon: <Award size={20} />, href: "/guide/application" },
     { name: "Wishlist", icon: <Heart size={20} />, href: "/dashboard/wishlist" },
     { name: "My Reviews", icon: <Star size={20} />, href: "/dashboard/reviews" },
-    { name: "Guide Application", icon: <Award size={20} />, href: "/guide/application" },
   ];
 
   const guideLinks = [
@@ -170,7 +170,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-24 bg-background/40 backdrop-blur-md border-b border-border-dim flex items-center justify-between px-8">
+        <header className="relative z-50 h-24 bg-background/40 backdrop-blur-md border-b border-border-dim flex items-center justify-between px-8">
            <div className="flex items-center gap-4 lg:hidden">
               <Logo showTagline={false} />
            </div>

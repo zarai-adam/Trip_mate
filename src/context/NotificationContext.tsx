@@ -48,7 +48,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     const handleAuthChange = () => {
       const userStr = localStorage.getItem("user");
-      const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+      let token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+      if (token === "undefined" || token === "null" || token?.trim() === "") {
+        token = undefined as any;
+      }
 
       if (userStr && token) {
         fetchNotifications();

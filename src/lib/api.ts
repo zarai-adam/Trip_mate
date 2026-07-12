@@ -13,7 +13,11 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
   };
 
   try {
-    const response = await fetch(resolvedUrl, { ...options, headers });
+    const response = await fetch(resolvedUrl, { 
+      credentials: "include",
+      ...options, 
+      headers 
+    });
 
     // Wrap the json() method to gracefully parse non-JSON responses and throw unified clean error messages
     const originalJson = response.json.bind(response);

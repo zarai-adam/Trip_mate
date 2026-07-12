@@ -1,5 +1,6 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import prisma from "../prisma.js";
+import { authenticate, AuthRequest } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -144,43 +145,148 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+// Create a trip (supports DRAFT and UNDER_REVIEW status)
+router.post("/", authenticate, async (req: AuthRequest, res) => {
   try {
-    const { title, description, destination, startDate, endDate, price, maxParticipants, guideId, difficulty, type, itinerary, included, latitude, longitude, isSoloFriendly } = req.body;
+    const { 
+      title, 
+      description, 
+      destination, 
+      startDate, 
+      endDate, 
+      price, 
+      maxParticipants, 
+      difficulty, 
+      type, 
+      itinerary, 
+      included, 
+      latitude, 
+      longitude, 
+      isSoloFriendly,
+      coverImageUrl,
+      status 
+    } = req.body;
     
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const guideId = req.user!.id;
+    
+    // Resolve start / end dates gracefully for Drafts
+    const start = startDate ? new Date(startDate) : new Date();
+    const end = endDate ? new Date(endDate) : new Date(Date.now() + 7 * 24 * 3600 * 1000); // Default to a week
     const durationDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)) || 1;
-    const slug = `${title.toLowerCase().replace(/ /g, "-")}-${Date.now()}`;
+    const slug = `${(title || "untitled-trip").toLowerCase().replace(/[^a-z0-9]/g, "-")}-${Date.now()}`;
 
     const trip = await prisma.trip.create({
       data: {
-        title,
+        title: title || "Draft Adventure",
         slug,
-        description,
-        destination,
+        description: description || "",
+        destination: destination || "TBD",
         startDate: start,
         endDate: end,
         durationDays,
-        pricePerPerson: Number(price),
+        pricePerPerson: price ? Number(price) : 0,
         groupSizeMin: 1,
-        groupSizeMax: Number(maxParticipants),
+        groupSizeMax: maxParticipants ? Number(maxParticipants) : 8,
         guideId,
-        difficulty,
-        tripType: type,
+        difficulty: (difficulty?.toUpperCase() as any) || "MODERATE",
+        tripType: (type?.toUpperCase() as any) || "MIXED",
         itinerary: itinerary || [],
         inclusions: included || [],
         meetingPoint: "TBD",
-        status: "PUBLISHED",
+        status: status || "DRAFT",
         latitude: latitude ? Number(latitude) : null,
         longitude: longitude ? Number(longitude) : null,
-        isSoloFriendly: isSoloFriendly ?? true
+        isSoloFriendly: isSoloFriendly ?? true,
+        coverImageUrl: coverImageUrl || null
       }
     });
     res.status(201).json(trip);
   } catch (error) {
     console.error("Create trip error:", error);
     res.status(400).json({ error: "Failed to create trip" });
+  }
+});
+
+// Get guide's own trips
+router.get("/guide/my-trips", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const trips = await prisma.trip.findMany({
+      where: { guideId: req.user!.id },
+      orderBy: { createdAt: "desc" }
+    });
+    const normalizedTrips = trips.map(t => ({
+      ...t,
+      price: Number(t.pricePerPerson),
+      image: t.coverImageUrl
+    }));
+    res.json(normalizedTrips);
+  } catch (error) {
+    console.error("Failed to fetch guide trips:", error);
+    res.status(500).json({ error: "Failed to fetch guide trips" });
+  }
+});
+
+// Update a trip (allows resubmitting and updating drafts)
+router.put("/:id", authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { id } = req.params;
+    const { 
+      title, 
+      description, 
+      destination, 
+      startDate, 
+      endDate, 
+      price, 
+      maxParticipants, 
+      difficulty, 
+      type, 
+      itinerary, 
+      included, 
+      coverImageUrl,
+      latitude, 
+      longitude, 
+      isSoloFriendly,
+      status 
+    } = req.body;
+
+    // Check ownership
+    const existing = await prisma.trip.findUnique({ where: { id } });
+    if (!existing) return res.status(404).json({ error: "Trip not found" });
+    if (existing.guideId !== req.user!.id && req.user!.role !== "ADMIN") {
+      return res.status(403).json({ error: "Forbidden: Not your trip" });
+    }
+
+    const start = startDate ? new Date(startDate) : existing.startDate;
+    const end = endDate ? new Date(endDate) : existing.endDate;
+    const durationDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)) || existing.durationDays;
+
+    const updated = await prisma.trip.update({
+      where: { id },
+      data: {
+        title: title !== undefined ? title : existing.title,
+        description: description !== undefined ? description : existing.description,
+        destination: destination !== undefined ? destination : existing.destination,
+        startDate: start,
+        endDate: end,
+        durationDays,
+        pricePerPerson: price !== undefined ? Number(price) : existing.pricePerPerson,
+        groupSizeMax: maxParticipants !== undefined ? Number(maxParticipants) : existing.groupSizeMax,
+        difficulty: difficulty ? (difficulty.toUpperCase() as any) : existing.difficulty,
+        tripType: type ? (type.toUpperCase() as any) : existing.tripType,
+        itinerary: itinerary !== undefined ? itinerary : existing.itinerary,
+        inclusions: included !== undefined ? included : existing.inclusions,
+        coverImageUrl: coverImageUrl !== undefined ? coverImageUrl : existing.coverImageUrl,
+        status: status !== undefined ? status : existing.status,
+        latitude: latitude !== undefined ? (latitude ? Number(latitude) : null) : existing.latitude,
+        longitude: longitude !== undefined ? (longitude ? Number(longitude) : null) : existing.longitude,
+        isSoloFriendly: isSoloFriendly !== undefined ? isSoloFriendly : existing.isSoloFriendly
+      }
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Failed to update trip:", error);
+    res.status(400).json({ error: "Failed to update trip" });
   }
 });
 

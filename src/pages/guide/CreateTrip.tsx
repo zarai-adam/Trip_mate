@@ -14,7 +14,7 @@ import {
   Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { apiFetch } from "@/lib/api";
 import { 
   APIProvider, 
@@ -35,6 +35,7 @@ export default function CreateTrip() {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -53,6 +54,39 @@ export default function CreateTrip() {
     coverImage: "",
     gallery: [] as string[]
   });
+
+  useEffect(() => {
+    if (id) {
+      const loadTrip = async () => {
+        try {
+          const res = await apiFetch(`/api/trips/${id}`);
+          if (res.ok) {
+            const data = await res.json();
+            setFormData({
+              title: data.title || "",
+              destination: data.destination || "",
+              latitude: data.latitude || null,
+              longitude: data.longitude || null,
+              price: data.pricePerPerson ? String(data.pricePerPerson) : "",
+              days: data.durationDays ? String(data.durationDays) : "",
+              maxParticipants: data.groupSizeMax ? String(data.groupSizeMax) : "8",
+              description: data.description || "",
+              type: data.tripType ? (data.tripType.charAt(0) + data.tripType.slice(1).toLowerCase()) : "Mountain",
+              difficulty: data.difficulty ? (data.difficulty.charAt(0) + data.difficulty.slice(1).toLowerCase()) : "Moderate",
+              itinerary: data.itinerary && data.itinerary.length > 0 ? data.itinerary : [{ day: 1, title: "", desc: "" }],
+              included: data.inclusions && data.inclusions.length > 0 ? data.inclusions : [""],
+              notIncluded: data.exclusions && data.exclusions.length > 0 ? data.exclusions : [""],
+              coverImage: data.coverImageUrl || "",
+              gallery: data.galleryImageUrls || []
+            });
+          }
+        } catch (err) {
+          console.error("Failed to load trip profile for editing:", err);
+        }
+      };
+      loadTrip();
+    }
+  }, [id]);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
@@ -122,15 +156,73 @@ export default function CreateTrip() {
     setFormData({ ...formData, included: newIncluded });
   };
 
-  const handleSubmit = async () => {
+  const saveTrip = async (forcedStatus?: "DRAFT" | "UNDER_REVIEW") => {
     setIsLoading(true);
     try {
-      console.log("Saving trip...", formData);
-      await new Promise(r => setTimeout(r, 2000));
-      navigate("/guide/dashboard/trips");
+      // Missing key details check for automated draft fallback
+      const hasMissingData = 
+        !formData.title || 
+        !formData.destination || 
+        !formData.price || 
+        !formData.description || 
+        !formData.coverImage;
+
+      const finalStatus = forcedStatus || (hasMissingData ? "DRAFT" : "UNDER_REVIEW");
+
+      if (forcedStatus === "UNDER_REVIEW" && hasMissingData) {
+        const confirmDraft = window.confirm(
+          "Some details are missing (such as description, price, destination, or thumbnail cover image). Would you like to save it as a DRAFT instead?"
+        );
+        if (!confirmDraft) {
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      const payload = {
+        title: formData.title || "Draft Adventure",
+        destination: formData.destination || "TBD",
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        price: formData.price ? Number(formData.price) : 0,
+        maxParticipants: formData.maxParticipants ? Number(formData.maxParticipants) : 8,
+        description: formData.description || "",
+        difficulty: formData.difficulty.toUpperCase(),
+        type: formData.type.toUpperCase(),
+        itinerary: formData.itinerary,
+        included: formData.included.filter(item => item.trim() !== ""),
+        coverImageUrl: formData.coverImage,
+        isSoloFriendly: true,
+        status: forcedStatus === "DRAFT" ? "DRAFT" : finalStatus
+      };
+
+      const url = id ? `/api/trips/${id}` : "/api/trips";
+      const method = id ? "PUT" : "POST";
+
+      const res = await apiFetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        navigate("/guide/dashboard/trips");
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to save trip");
+      }
+    } catch (err) {
+      console.error("Save failed", err);
+      alert("An unexpected error occurred while saving.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = () => {
+    saveTrip("UNDER_REVIEW");
   };
 
   return (
@@ -160,10 +252,20 @@ export default function CreateTrip() {
                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Trip Title</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Saharal Sunset & Starlit Dunes"
+                  placeholder="e.g. Sahara Sunset & Starlit Dunes"
                   className="w-full p-4 bg-offwhite rounded-2xl border-none focus:ring-2 focus:ring-sage/20 focus:outline-none font-bold text-lg"
                   value={formData.title}
                   onChange={e => setFormData({...formData, title: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Trip Description</label>
+                <textarea 
+                  placeholder="Tell us about the vibes, the landscape, and what makes this expedition unique..."
+                  className="w-full p-4 bg-offwhite rounded-2xl border-none focus:ring-2 focus:ring-sage/20 focus:outline-none font-bold text-sm min-h-[120px]"
+                  value={formData.description}
+                  onChange={e => setFormData({...formData, description: e.target.value})}
                 />
               </div>
 
@@ -383,17 +485,28 @@ export default function CreateTrip() {
                </div>
             </div>
 
-            <div className="pt-8 flex justify-between">
+            <div className="pt-8 flex flex-wrap justify-between gap-4">
               <Button onClick={prevStep} variant="outline" className="h-14 border-forest/10 text-forest px-12 rounded-2xl font-black gap-2">
                 <ArrowLeft size={20} /> Back
               </Button>
-              <Button 
-                onClick={handleSubmit} 
-                disabled={isLoading}
-                className="h-14 bg-forest text-white px-12 rounded-2xl font-black gap-2 shadow-xl shadow-forest/20"
-              >
-                {isLoading ? <Loader2 className="animate-spin" /> : "Publish Trip"}
-              </Button>
+              <div className="flex gap-4">
+                <Button 
+                  type="button"
+                  onClick={() => saveTrip("DRAFT")} 
+                  disabled={isLoading}
+                  variant="outline"
+                  className="h-14 border-gray-300 text-gray-500 hover:bg-gray-50 px-8 rounded-2xl font-bold gap-2"
+                >
+                  Save as Draft
+                </Button>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={isLoading}
+                  className="h-14 bg-forest text-white px-12 rounded-2xl font-black gap-2 shadow-xl shadow-forest/20"
+                >
+                  {isLoading ? <Loader2 className="animate-spin" /> : (id ? "Save & Submit" : "Submit for Review")}
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}

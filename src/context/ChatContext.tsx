@@ -52,6 +52,7 @@ interface ChatContextType {
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId: string, before?: string) => Promise<void>;
   startDirectMessage: (otherUserId: string, tripId?: string) => Promise<string>;
+  startConversationByUsername: (username: string) => Promise<any>;
   startTripGroupChat: (tripId: string) => Promise<string>;
   typingUsers: Record<string, { userId: string; userName: string }[]>;
   setTyping: (conversationId: string, isTyping: boolean) => void;
@@ -72,8 +73,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const socketRef = useRef<Socket | null>(null);
   const activeConversationRef = useRef<Conversation | null>(null);
 
-  const fetchConversations = useCallback(async () => {
+  const getCleanToken = useCallback(() => {
     const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+    if (!token || token === "undefined" || token === "null" || token.trim() === "") {
+      return null;
+    }
+    return token;
+  }, []);
+
+  const fetchConversations = useCallback(async () => {
+    const token = getCleanToken();
     if (!token) return;
 
     try {
@@ -90,10 +99,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       console.error("Failed to fetch conversations", err);
     }
-  }, []);
+  }, [getCleanToken]);
 
   const fetchMessages = useCallback(async (conversationId: string, before?: string) => {
-    const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+    const token = getCleanToken();
     try {
       const res = await axios.get(`/api/messages/${conversationId}/messages`, {
         params: { before, limit: 50 },
@@ -107,7 +116,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error("Failed to fetch messages", err);
     }
-  }, []);
+  }, [getCleanToken]);
 
   const setActiveConversation = useCallback((conv: Conversation | null) => {
     setActiveConversationState(conv);
@@ -125,7 +134,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [fetchMessages]);
 
   const sendMessage = async (conversationId: string, body: string) => {
-    const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+    const token = getCleanToken();
     setError(null);
     try {
       await axios.post(`/api/messages/${conversationId}/messages`, { body }, {
@@ -142,7 +151,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const markAsRead = async (conversationId: string) => {
-    const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+    const token = getCleanToken();
     try {
       await axios.post(`/api/messages/${conversationId}/read`, {}, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
@@ -163,7 +172,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const startDirectMessage = async (otherUserId: string, tripId?: string) => {
-    const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+    const token = getCleanToken();
     try {
       const res = await axios.post("/api/messages/direct", { otherUserId, tripId }, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
@@ -176,8 +185,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const startConversationByUsername = async (username: string) => {
+    const token = getCleanToken();
+    try {
+      const res = await axios.post("/api/messages/by-username", { username }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      await fetchConversations();
+      return res.data;
+    } catch (err: any) {
+      console.error("Failed to start conversation by username", err);
+      if (err.response?.data?.error) {
+        throw new Error(err.response.data.error);
+      }
+      throw err;
+    }
+  };
+
   const startTripGroupChat = async (tripId: string) => {
-    const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+    const token = getCleanToken();
     try {
       const res = await axios.get(`/api/messages/trip/${tripId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
@@ -206,7 +232,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
-    const token = localStorage.getItem("token") || document.cookie.split("token=")[1]?.split(";")[0];
+    const token = getCleanToken();
 
     if (userStr && token) {
       fetchConversations();
@@ -221,7 +247,33 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         socketRef.current.on("message:new", (message: Message) => {
-          // If message is for active conversation, add it
+          // Update the conversations list with the new message and re-sort
+          setConversations(prev => {
+            const exists = prev.some(c => c.id === message.conversationId);
+            if (!exists) {
+              // If the conversation was not in the sidebar, fetch them to refresh
+              fetchConversations();
+              return prev;
+            }
+
+            const updated = prev.map(c => {
+              if (c.id === message.conversationId) {
+                const isCurrentActive = activeConversationRef.current?.id === message.conversationId;
+                const newUnreadCount = isCurrentActive ? 0 : (c.unreadCount + 1);
+                return {
+                  ...c,
+                  lastMessage: message,
+                  lastMessageAt: message.createdAt,
+                  unreadCount: newUnreadCount
+                };
+              }
+              return c;
+            });
+            // Re-sort list so the active/recent conversation is on top
+            return [...updated].sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+          });
+
+          // If message is for active conversation, add to live messages list
           if (activeConversationRef.current?.id === message.conversationId) {
             setMessages(prev => {
                if (prev.some(m => m.id === message.id)) return prev;
@@ -229,17 +281,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             markAsRead(message.conversationId);
           } else {
-            // Update conversation list/unread count
-            setConversations(prev => {
-              const updated = prev.map(c => {
-                if (c.id === message.conversationId) {
-                  return { ...c, lastMessage: message, unreadCount: c.unreadCount + 1, lastMessageAt: message.createdAt };
-                }
-                return c;
-              });
-              // Sort by date
-              return [...updated].sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
-            });
             setTotalUnreadCount(prev => prev + 1);
             
             // New message notification
@@ -247,6 +288,39 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (message.senderId !== activeUser.id) {
                window.dispatchEvent(new CustomEvent("new-chat-message", { detail: message }));
             }
+          }
+        });
+
+        socketRef.current.on("notification:message", (data: { conversationId: string; message: Message }) => {
+          const { conversationId, message } = data;
+          
+          setConversations(prev => {
+            const exists = prev.some(c => c.id === conversationId);
+            if (!exists) {
+              fetchConversations();
+              return prev;
+            }
+
+            const updated = prev.map(c => {
+              if (c.id === conversationId) {
+                const isCurrentActive = activeConversationRef.current?.id === conversationId;
+                const newUnreadCount = isCurrentActive ? 0 : (c.unreadCount + 1);
+                return {
+                  ...c,
+                  lastMessage: message,
+                  lastMessageAt: message.createdAt,
+                  unreadCount: newUnreadCount
+                };
+              }
+              return c;
+            });
+            return [...updated].sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+          });
+
+          const activeUser = JSON.parse(localStorage.getItem("user") || "{}");
+          if (message.senderId !== activeUser.id) {
+            setTotalUnreadCount(prev => prev + 1);
+            window.dispatchEvent(new CustomEvent("new-chat-message", { detail: message }));
           }
         });
 
@@ -291,6 +365,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       fetchConversations,
       fetchMessages,
       startDirectMessage,
+      startConversationByUsername,
       startTripGroupChat,
       typingUsers,
       setTyping

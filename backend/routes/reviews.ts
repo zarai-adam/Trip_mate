@@ -8,6 +8,49 @@ const router = Router();
 
 router.use(authenticate);
 
+// Get reviews given or received by the user
+router.get("/", async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+
+    const reviews = await prisma.review.findMany({
+      where: {
+        OR: [
+          { reviewerId: userId },
+          { revieweeId: userId }
+        ]
+      },
+      include: {
+        reviewer: true,
+        reviewee: true,
+        trip: true
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+
+    const formattedReviews = reviews.map(r => ({
+      id: r.id,
+      tripTitle: r.trip.title,
+      authorName: `${r.reviewer.firstName} ${r.reviewer.lastName}`,
+      authorAvatar: r.reviewer.avatarUrl,
+      rating: r.rating,
+      comment: r.comment,
+      date: new Date(r.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric"
+      })
+    }));
+
+    res.json(formattedReviews);
+  } catch (error) {
+    console.error("Get reviews error:", error);
+    res.status(500).json({ error: "Failed to load reviews" });
+  }
+});
+
 // Create a review
 router.post("/", async (req: AuthRequest, res: Response) => {
   try {

@@ -27,6 +27,9 @@ enum GuideApplicationStatus {
 
 enum TripStatus {
   DRAFT
+  UNDER_REVIEW
+  ACCEPTED
+  DENIED
   PUBLISHED
   FULL
   IN_PROGRESS
