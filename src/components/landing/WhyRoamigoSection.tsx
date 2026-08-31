@@ -34,7 +34,7 @@ const FEATURES = [
   },
 ];
 
-export default function WhyTripMateSection() {
+export default function WhyRoamigoSection() {
   return (
     <section className="py-32 bg-transparent">
       <div className="container mx-auto px-6">

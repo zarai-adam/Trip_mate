@@ -26,7 +26,7 @@ export default function AboutUs() {
                <Sparkles size={14} className="text-forest" />
                <span className="text-[10px] font-bold uppercase tracking-widest text-forest">Our story</span>
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-8xl font-heading font-bold text-forest mb-6 leading-none tracking-tight">We are TripMate.</h1>
+            <h1 className="text-4xl md:text-6xl lg:text-8xl font-heading font-bold text-forest mb-6 leading-none tracking-tight">We are Roamigo.</h1>
             <p className="text-gray-500 font-medium text-lg md:text-xl max-w-2xl mx-auto italic leading-relaxed">
               Founded by backpackers, for backpackers. We're on a mission to bring authenticity back to travel by connecting you with local experts.
             </p>
@@ -44,7 +44,7 @@ export default function AboutUs() {
                 In a world of cookie-cutter tours and filtered experiences, true connection is hard to find. We believe the best way to see the world is through the eyes of those who call it home.
               </p>
               <p className="text-gray-600 text-base md:text-lg leading-relaxed font-medium">
-                TripMate was born in a dusty common room at Nomads Hostel Tunisia, where our founders realized that the most memorable parts of their journey weren't the monuments, but the people who guided them.
+                Roamigo was born in a dusty common room at Nomads Hostel Tunisia, where our founders realized that the most memorable parts of their journey weren't the monuments, but the people who guided them.
               </p>
             </div>
 

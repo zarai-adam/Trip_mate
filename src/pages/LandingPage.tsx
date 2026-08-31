@@ -4,7 +4,7 @@ import HeroSection from "../components/landing/HeroSection";
 import TrustBar from "../components/landing/TrustBar";
 import HowItWorksSection from "../components/landing/HowItWorksSection";
 import FeaturedTripsSection from "../components/landing/FeaturedTripsSection";
-import WhyTripMateSection from "../components/landing/WhyTripMateSection";
+import WhyRoamigoSection from "../components/landing/WhyRoamigoSection";
 import TopGuidesCarousel from "../components/landing/TopGuidesCarousel";
 import TestimonialsSection from "../components/landing/TestimonialsSection";
 import DestinationsGrid from "../components/landing/DestinationsGrid";
@@ -35,7 +35,7 @@ export default function LandingPage() {
       <TrustBar />
       <HowItWorksSection />
       <FeaturedTripsSection />
-      <WhyTripMateSection />
+      <WhyRoamigoSection />
       <TopGuidesCarousel />
       <TestimonialsSection />
       <DestinationsGrid />

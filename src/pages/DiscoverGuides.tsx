@@ -48,7 +48,7 @@ export default function DiscoverGuides() {
            >
             <h1 className="text-6xl md:text-8xl font-heading font-extrabold text-forest mb-8 leading-[0.8] tracking-tighter uppercase">LOCAL<br/>LEGENDS</h1>
             <p className="text-xl md:text-2xl text-gray-400 max-w-3xl font-medium italic">
-              Every guide on Trip Mate is a verified local expert with years of authentic experience. Join their expedition and see the world differently.
+              Every guide on Roamigo is a verified local expert with years of authentic experience. Join their expedition and see the world differently.
             </p>
            </motion.div>
         </div>

@@ -10,14 +10,14 @@ interface SEOProps {
 }
 
 export default function SEO({ 
-  title = "Trip Mate | Your Adventure Pairing Platform",
+  title = "Roamigo | Your Adventure Pairing Platform",
   description = "Join a tribe of seekers and explore the world with expert local guides.",
   image = "/og-image.jpg",
-  url = "https://tripmate.com",
+  url = "https://roamigo.com",
   type = "website",
   structuredData
 }: SEOProps) {
-  const siteTitle = title.includes("Trip Mate") ? title : `${title} | Trip Mate`;
+  const siteTitle = title.includes("Roamigo") ? title : `${title} | Roamigo`;
 
   return (
     <Helmet>

@@ -85,7 +85,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Email Support</p>
-                    <p className="font-heading font-extrabold text-forest">hello@tripmate.app</p>
+                    <p className="font-heading font-extrabold text-forest">hello@roamigo.app</p>
                   </div>
                </div>
                <div className="flex items-center gap-6 group">

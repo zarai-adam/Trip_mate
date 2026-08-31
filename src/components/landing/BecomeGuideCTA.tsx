@@ -44,7 +44,7 @@ export default function BecomeGuideCTA() {
                 transition={{ delay: 0.2 }}
                 className="text-lg text-foreground-muted font-medium italic leading-relaxed"
               >
-                Lead small groups of like-minded travelers to destinations you know. Apply to become a verified Trip Mate guide and earn doing what you love.
+                Lead small groups of like-minded travelers to destinations you know. Apply to become a verified Roamigo guide and earn doing what you love.
               </motion.p>
             </div>
 

@@ -15,7 +15,7 @@ const TESTIMONIALS = [
     country: "Italy",
     trip: "Hidden Temples of Japan",
     image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Luca",
-    quote: "Trip Mate connected me with a group of solo travelers I now call friends. Our guide, Kenji, showed us spots you simply cannot find on Google Maps.",
+    quote: "Roamigo connected me with a group of solo travelers I now call friends. Our guide, Kenji, showed us spots you simply cannot find on Google Maps.",
     rating: 5,
   },
   {

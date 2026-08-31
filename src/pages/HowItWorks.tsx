@@ -72,7 +72,7 @@ export default function HowItWorks() {
     { q: "How do you verify guides?", a: "Guides go through a multi-stage verification including ID checks, travel history review, and a personal interview for premium tiers." },
     { q: "What if a trip is cancelled?", a: "If a guide cancels, you get a 100% refund immediately. If you cancel, the refund depends on the guide's specific policy (Flexible/Moderate/Strict)." },
     { q: "Can I message a guide before booking?", a: "Absolutely! You can send an inquiry or message the guide directly from the trip page to ask any questions." },
-    { q: "Are flights included?", a: "Usually no. Trip Mate focuses on the on-ground experience led by locals. You are responsible for your own transport to the meeting point." },
+    { q: "Are flights included?", a: "Usually no. Roamigo focuses on the on-ground experience led by locals. You are responsible for your own transport to the meeting point." },
     { q: "Is there an age limit?", a: "Most trips are 18+, but some family-friendly trips are available. Each guide sets their own age requirements." },
     { q: "What is the community fee?", a: "We charge a small platform fee (typically 10-15%) to cover insurance, secure payment processing, and 24/7 support." },
     { q: "Can I lead my own trip?", a: "Yes! If you have local expertise or a deep knowledge of a destination, you can apply to become a guide." },
@@ -93,7 +93,7 @@ export default function HowItWorks() {
           >
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-white mb-8 tracking-tight leading-tight">Travel with friends <br/><span className="text-sand">you haven&apos;t met yet.</span></h1>
             <p className="text-white/80 text-lg md:text-xl max-w-3xl mx-auto font-medium leading-relaxed italic">
-              TripMate is a peer-to-peer marketplace that cuts out the middlemen and connects real travelers for authentic adventures.
+              Roamigo is a peer-to-peer marketplace that cuts out the middlemen and connects real travelers for authentic adventures.
             </p>
           </motion.div>
         </div>
@@ -185,7 +185,7 @@ export default function HowItWorks() {
            <div className="absolute top-0 right-0 w-64 h-64 bg-sage/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 relative z-10">
               <div className="space-y-8">
-                 <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">Why Trip Mate?</h2>
+                 <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">Why Roamigo?</h2>
                  <p className="text-white/70 text-xl font-medium leading-relaxed italic">
                    We built this for the backpackers who want real connection, not just a sightseeing tour. We removed the agencies, simplified the safety, and focused on the people.
                  </p>
@@ -215,7 +215,7 @@ export default function HowItWorks() {
                        <Users size={24} />
                     </div>
                     <div>
-                       <h4 className="text-xl font-black text-sand mb-2 uppercase tracking-tighter">Trip Mate Way</h4>
+                       <h4 className="text-xl font-black text-sand mb-2 uppercase tracking-tighter">Roamigo Way</h4>
                        <p className="text-white/80 text-sm font-medium leading-relaxed font-heading">Real-world prices. Small circles of like-minded travelers. Authentic local secret spots. Direct friendship with expert travelers.</p>
                     </div>
                  </div>

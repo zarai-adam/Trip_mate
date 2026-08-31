@@ -76,7 +76,7 @@ const AdminLayout = () => {
               <ShieldCheck className="text-forest" size={24} />
             </div>
             <div>
-              <span className="text-xl font-heading font-black tracking-tight block leading-none">TRIP MATE</span>
+              <span className="text-xl font-heading font-black tracking-tight block leading-none">ROAMIGO</span>
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sage-dark">Admin Panel</span>
             </div>
           </Link>

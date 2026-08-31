@@ -16,7 +16,7 @@ const Logo: React.FC<LogoProps> = ({ className = "", iconSize = 22, showTagline 
       </div>
       <div className="flex flex-col">
         <span className="text-xl md:text-2xl font-black text-foreground tracking-tighter uppercase leading-none">
-          Trip Mate
+          Roamigo
         </span>
         {showTagline && (
           <span className="text-[8px] font-black text-primary uppercase tracking-[0.3em] leading-none mt-1">

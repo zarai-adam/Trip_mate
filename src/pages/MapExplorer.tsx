@@ -175,7 +175,7 @@ const MapExplorer = () => {
               <Map
                 defaultCenter={{ lat: 20, lng: 0 }}
                 defaultZoom={3}
-                mapId="TRIPMATE_EXPLORER_V2"
+                mapId="ROAMIGO_EXPLORER_V2"
                 internalUsageAttributionIds={['gmp_mcp_codeassist_v1_aistudio']}
                 style={{ width: '100%', height: '100%' }}
                 disableDefaultUI={true}

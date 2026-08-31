@@ -70,7 +70,7 @@ export default function FooterSection() {
           
           <div className="flex items-center gap-6">
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-              © {currentYear} Trip Mate. All rights reserved.
+              © {currentYear} Roamigo. All rights reserved.
             </p>
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
               Made with <Heart size={12} className="text-red-500 fill-red-500" /> for backpackers

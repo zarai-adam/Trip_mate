@@ -132,7 +132,7 @@ const AdminDashboard = () => {
             <Shield size={14} className="text-primary" />
             <span className="text-[10px] font-black uppercase tracking-widest text-primary">Admin Control Center</span>
           </div>
-          <p className="text-gray-500 font-medium ml-1 mt-4">Manage Trip Mate ecosystem and verify guides.</p>
+          <p className="text-gray-500 font-medium ml-1 mt-4">Manage Roamigo ecosystem and verify guides.</p>
         </header>
 
         <div className="flex flex-col lg:flex-row gap-8">

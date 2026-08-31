@@ -27,7 +27,7 @@ export default function Privacy() {
             <p className="mb-8">We collect information that you provide directly to us when you create an account, lead or join a trip, or communicate with us. This includes your name, email, payment information, and any profile details like your travel history.</p>
 
             <h2 className="text-2xl font-heading font-black text-forest uppercase mb-6">2. How We Use Your Data</h2>
-            <p className="mb-8">Your data is used solely to facilitate the Trip Mate experience: verifying guides, processing secure payments, creating group chats, and providing customer support. We do not sell your personal data to advertisers.</p>
+            <p className="mb-8">Your data is used solely to facilitate the Roamigo experience: verifying guides, processing secure payments, creating group chats, and providing customer support. We do not sell your personal data to advertisers.</p>
 
             <h2 className="text-2xl font-heading font-black text-forest uppercase mb-6">3. Data Sharing</h2>
             <p className="mb-8">We share your contact information with other participants of a trip only after a booking is confirmed. Your payment info is handled by secure third-party processors (like Stripe) and is never stored on our servers.</p>

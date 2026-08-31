@@ -265,7 +265,7 @@ const ApplyGuide = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-black text-red-950 tracking-tight">Application Declined</h2>
-                <p className="text-xs text-gray-400 font-bold">Feedback from TripMate verification division</p>
+                <p className="text-xs text-gray-400 font-bold">Feedback from Roamigo verification division</p>
               </div>
             </div>
 
@@ -410,7 +410,7 @@ const ApplyGuide = () => {
 
           <div className="space-y-4">
             <label className="text-xs font-black uppercase tracking-widest text-forest block">
-              Why do you want to become a TripMate guide?
+              Why do you want to become a Roamigo guide?
             </label>
             <textarea 
               required

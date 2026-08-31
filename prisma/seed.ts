@@ -19,14 +19,14 @@ async function main() {
     where: {
       email: {
         in: [
-          "admin@tripmate.app",
-          "sarah@tripmate.app",
-          "marco@tripmate.app",
-          "amara@tripmate.app",
-          "alex@tripmate.app",
-          "maria@tripmate.app",
-          "james@tripmate.app",
-          "yuki@tripmate.app"
+          "admin@roamigo.app",
+          "sarah@roamigo.app",
+          "marco@roamigo.app",
+          "amara@roamigo.app",
+          "alex@roamigo.app",
+          "maria@roamigo.app",
+          "james@roamigo.app",
+          "yuki@roamigo.app"
         ]
       }
     }
@@ -39,13 +39,13 @@ async function main() {
 
   // 1. ADMIN
   const admin = await prisma.user.upsert({
-    where: { email: "admin@tripmate.app" },
+    where: { email: "admin@roamigo.app" },
     update: {},
     create: {
-      email: "admin@tripmate.app",
+      email: "admin@roamigo.app",
       passwordHash: adminPass,
       firstName: "Admin",
-      lastName: "TripMate",
+      lastName: "Roamigo",
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
       emailVerified: true,
@@ -55,7 +55,7 @@ async function main() {
   // 2. APPROVED GUIDES
   const sarah = await prisma.user.create({
     data: {
-      email: "sarah@tripmate.app",
+      email: "sarah@roamigo.app",
       passwordHash: guidePass,
       firstName: "Sarah",
       lastName: "Chen",
@@ -92,7 +92,7 @@ async function main() {
 
   const marco = await prisma.user.create({
     data: {
-      email: "marco@tripmate.app",
+      email: "marco@roamigo.app",
       passwordHash: guidePass,
       firstName: "Marco",
       lastName: "Rossi",
@@ -129,7 +129,7 @@ async function main() {
 
   const amara = await prisma.user.create({
     data: {
-      email: "amara@tripmate.app",
+      email: "amara@roamigo.app",
       passwordHash: guidePass,
       firstName: "Amara",
       lastName: "Diallo",
@@ -167,16 +167,16 @@ async function main() {
   // 3. EXPLORERS
   await prisma.user.createMany({
     data: [
-      { email: "alex@tripmate.app", passwordHash: explorerPass, firstName: "Alex", lastName: "Kumar", country: "London, UK", role: UserRole.EXPLORER, emailVerified: true },
-      { email: "maria@tripmate.app", passwordHash: explorerPass, firstName: "Maria", lastName: "Santos", country: "Lisbon, Portugal", role: UserRole.EXPLORER, emailVerified: true },
-      { email: "james@tripmate.app", passwordHash: explorerPass, firstName: "James", lastName: "Wilson", country: "Toronto, Canada", role: UserRole.EXPLORER, emailVerified: true },
+      { email: "alex@roamigo.app", passwordHash: explorerPass, firstName: "Alex", lastName: "Kumar", country: "London, UK", role: UserRole.EXPLORER, emailVerified: true },
+      { email: "maria@roamigo.app", passwordHash: explorerPass, firstName: "Maria", lastName: "Santos", country: "Lisbon, Portugal", role: UserRole.EXPLORER, emailVerified: true },
+      { email: "james@roamigo.app", passwordHash: explorerPass, firstName: "James", lastName: "Wilson", country: "Toronto, Canada", role: UserRole.EXPLORER, emailVerified: true },
     ],
   });
 
   // 4. PENDING GUIDE
   await prisma.user.create({
     data: {
-      email: "yuki@tripmate.app",
+      email: "yuki@roamigo.app",
       passwordHash: guidePass,
       firstName: "Yuki",
       lastName: "Tanaka",

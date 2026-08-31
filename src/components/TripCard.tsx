@@ -34,7 +34,7 @@ export default function TripCard({ trip, index }: TripCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    const savedFavorites = localStorage.getItem("tripmate_wishlist");
+    const savedFavorites = localStorage.getItem("roamigo_wishlist");
     if (savedFavorites) {
       const favorites = JSON.parse(savedFavorites);
       setIsFavorite(favorites.includes(trip.id));
@@ -44,7 +44,7 @@ export default function TripCard({ trip, index }: TripCardProps) {
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const savedFavorites = localStorage.getItem("tripmate_wishlist");
+    const savedFavorites = localStorage.getItem("roamigo_wishlist");
     let favorites = savedFavorites ? JSON.parse(savedFavorites) : [];
     
     if (favorites.includes(trip.id)) {
@@ -55,7 +55,7 @@ export default function TripCard({ trip, index }: TripCardProps) {
       setIsFavorite(true);
     }
     
-    localStorage.setItem("tripmate_wishlist", JSON.stringify(favorites));
+    localStorage.setItem("roamigo_wishlist", JSON.stringify(favorites));
   };
 
   return (

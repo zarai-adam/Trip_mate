@@ -98,7 +98,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-center gap-3 text-sm text-gray-500">
                 <Mail size={16} className="text-sage" />
-                <span>hello@tripmate.com</span>
+                <span>hello@roamigo.com</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-500">
                 <Globe size={16} className="text-sage" />
@@ -111,7 +111,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 md:pt-10 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
           <p className="text-xs text-gray-400 font-medium tracking-wide">
-            © {currentYear} TripMate Adventures Inc. All rights reserved.
+            © {currentYear} Roamigo Adventures Inc. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center gap-6 md:gap-10">
             <Link to="/terms" className="text-xs text-gray-400 hover:text-forest transition-colors font-medium">Terms of Service</Link>

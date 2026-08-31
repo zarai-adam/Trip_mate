@@ -23,7 +23,7 @@ const posts = [
   },
   {
     title: "10 things I wish I knew before leading my first trip",
-    excerpt: "Insights from a Trip Mate guide on managing group dynamics and ensuring every traveler has a story to tell.",
+    excerpt: "Insights from a Roamigo guide on managing group dynamics and ensuring every traveler has a story to tell.",
     author: "Malik T.",
     date: "May 01, 2026",
     category: "Guide Tips",

@@ -14,8 +14,8 @@ export default defineConfig(({mode}) => {
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
         manifest: {
-          name: 'Trip Mate',
-          short_name: 'TripMate',
+          name: 'Roamigo',
+          short_name: 'Roamigo',
           description: 'Your ultimate adventure pairing platform',
           theme_color: '#86C598',
           background_color: '#F9FAFB',

@@ -45,7 +45,7 @@ export default function MyBookings() {
 
   useEffect(() => {
     // Load bookings from local storage or use mock
-    const saved = localStorage.getItem("tripmate_bookings");
+    const saved = localStorage.getItem("roamigo_bookings");
     if (saved) {
       setBookings(JSON.parse(saved));
     } else {
@@ -74,13 +74,13 @@ export default function MyBookings() {
         ));
         
         // Update localStorage if we were using it
-        const saved = localStorage.getItem("tripmate_bookings");
+        const saved = localStorage.getItem("roamigo_bookings");
         if (saved) {
           const bookings = JSON.parse(saved);
           const updated = bookings.map((b: any) => 
             b.id === bookingToCancel.id ? { ...b, status: "CANCELLED" } : b
           );
-          localStorage.setItem("tripmate_bookings", JSON.stringify(updated));
+          localStorage.setItem("roamigo_bookings", JSON.stringify(updated));
         }
       } else {
         // Fallback for mock/local data if API fails (e.g. ID doesn't exist in DB)

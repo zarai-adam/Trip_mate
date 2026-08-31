@@ -24,7 +24,7 @@ export default function Terms() {
         <div className="container-wide max-w-4xl bg-white rounded-[3rem] p-10 md:p-20 shadow-sleek border border-sage/10">
           <div className="prose prose-sage max-w-none text-gray-600 font-medium leading-relaxed italic">
             <h2 className="text-2xl font-heading font-black text-forest uppercase mb-6">1. Acceptance of Terms</h2>
-            <p className="mb-8">By creating an account on Trip Mate, you agree to respect our community guidelines and legal terms. We are a platform for adults (18+) unless explicitly specified in family-oriented trips.</p>
+            <p className="mb-8">By creating an account on Roamigo, you agree to respect our community guidelines and legal terms. We are a platform for adults (18+) unless explicitly specified in family-oriented trips.</p>
 
             <h2 className="text-2xl font-heading font-black text-forest uppercase mb-6">2. Guide Responsibilities</h2>
             <p className="mb-8">Guides are responsible for the accuracy of their itineraries and the safety of their groups. Providing false information or engaging in illegal activities will result in immediate permanent ban and reported to authorities.</p>
@@ -36,7 +36,7 @@ export default function Terms() {
             <p className="mb-8">All financial transactions must happen through the platform. Side-payments are strictly prohibited for safety and verification reasons. Refund eligibility is determined by the policy selected by the guide at the time of posting.</p>
 
             <h2 className="text-2xl font-heading font-black text-forest uppercase mb-6">5. Platform Liability</h2>
-            <p className="mb-8">Trip Mate is a facilitator of connections. While we verify identities and monitor trips, we are not responsible for the inherent risks of travel, changes in local conditions, or personal disputes between travelers.</p>
+            <p className="mb-8">Roamigo is a facilitator of connections. While we verify identities and monitor trips, we are not responsible for the inherent risks of travel, changes in local conditions, or personal disputes between travelers.</p>
 
             <div className="mt-16 p-8 bg-forest text-white rounded-3xl shadow-xl">
                <div className="flex items-center gap-4 mb-4">
